@@ -19,14 +19,29 @@ Flutter · Dart 3 · Riverpod · go_router · Drift (SQLite) · flutter_tts · a
 
 ## Setup
 
-Requirements: Flutter (stable, 3.41+), Android SDK (min SDK 26), an ARM64 Android device.
+Requirements: Flutter stable 3.47+ (Dart 3.13), Android SDK with cmdline-tools and accepted licenses (`flutter doctor --android-licenses`), an ARM64 Android device with USB or wireless debugging enabled.
 
 ```bash
 git clone git@github.com:kart747/mynah.git
 cd mynah
 flutter pub get
-flutter run            # with your phone connected via USB/wireless debugging
+flutter run
 ```
+
+Generated Drift code (`*.g.dart`) is committed. After changing tables, regenerate it:
+
+```bash
+dart run build_runner build
+```
+
+Tests:
+
+```bash
+flutter analyze
+flutter test
+```
+
+Sample books in `assets/samples/` are public-domain EPUBs from [Project Gutenberg](https://www.gutenberg.org/).
 
 Release build:
 

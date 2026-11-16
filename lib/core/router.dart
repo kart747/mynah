@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/library/book_details_screen.dart';
 import '../features/library/library_screen.dart';
+import '../features/reader/reader_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -13,9 +13,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'book/:id',
-            builder: (_, state) => BookDetailsScreen(
-              bookId: int.parse(state.pathParameters['id']!),
-            ),
+            builder: (_, state) =>
+                ReaderScreen(bookId: int.parse(state.pathParameters['id']!)),
           ),
         ],
       ),

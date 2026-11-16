@@ -12,18 +12,24 @@ import 'package:mynah/features/library/book_card.dart';
 void main() {
   late AppDatabase db;
 
-  setUp(() => db = AppDatabase(DatabaseConnection(
+  setUp(
+    () => db = AppDatabase(
+      DatabaseConnection(
         NativeDatabase.memory(),
         closeStreamsSynchronously: true,
-      )));
+      ),
+    ),
+  );
 
   tearDown(() => db.close());
 
   Future<void> pumpApp(WidgetTester tester) async {
-    await tester.pumpWidget(ProviderScope(
-      overrides: [databaseProvider.overrideWithValue(db)],
-      child: const MynahApp(),
-    ));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MynahApp(),
+      ),
+    );
     await tester.pumpAndSettle();
   }
 
@@ -34,18 +40,19 @@ void main() {
   }
 
   Future<int> addBook(String title, {int current = 0}) =>
-      BookRepository(db).addBook(BooksCompanion.insert(
-        title: title,
-        format: BookFormat.epub,
-        filePath: '/nowhere/$title.epub',
-        fileSize: title.length,
-        wordCount: const Value(1000),
-        sentenceCount: const Value(100),
-        currentSentence: Value(current),
-      ));
+      BookRepository(db).addBook(
+        BooksCompanion.insert(
+          title: title,
+          format: BookFormat.epub,
+          filePath: '/nowhere/$title.epub',
+          fileSize: title.length,
+          wordCount: const Value(1000),
+          sentenceCount: const Value(100),
+          currentSentence: Value(current),
+        ),
+      );
 
-  testWidgets('shows the empty state with sample books offer',
-      (tester) async {
+  testWidgets('shows the empty state with sample books offer', (tester) async {
     await pumpApp(tester);
 
     expect(find.text('Your library is empty'), findsOneWidget);
@@ -65,7 +72,8 @@ void main() {
     await tester.tap(find.byTooltip('Sort'));
     await tester.pumpAndSettle();
     await tester.tap(
-        find.widgetWithText(CheckedPopupMenuItem<LibrarySort>, 'Title'));
+      find.widgetWithText(CheckedPopupMenuItem<LibrarySort>, 'Title'),
+    );
     await tester.pumpAndSettle();
 
     final titles = tester
@@ -76,8 +84,9 @@ void main() {
     await tearDownApp(tester);
   });
 
-  testWidgets('swipe asks for confirmation; cancel keeps the book',
-      (tester) async {
+  testWidgets('swipe asks for confirmation; cancel keeps the book', (
+    tester,
+  ) async {
     await addBook('Emma');
     await pumpApp(tester);
 
@@ -101,13 +110,13 @@ void main() {
     await tester.pumpAndSettle();
     // Deleting the stored files is real I/O.
     await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(BookCard), findsNothing);
     expect(find.text('Deleted "Emma"'), findsOneWidget);
-    expect(await tester.runAsync(() => BookRepository(db).getBook(id)),
-        isNull);
+    expect(await tester.runAsync(() => BookRepository(db).getBook(id)), isNull);
     await tearDownApp(tester);
   });
 }

@@ -6,7 +6,9 @@ import 'package:path/path.dart' as p;
 
 import '../../data/db/app_database.dart';
 import '../../data/repositories/book_repository.dart';
+import '../../data/repositories/text_repository.dart';
 import 'epub_metadata.dart';
+import 'epub_text.dart';
 
 sealed class ImportResult {
   const ImportResult(this.fileName);
@@ -31,9 +33,10 @@ class ImportFailure extends ImportResult {
 
 /// Copies picked files into app storage and registers them in the library.
 class ImportService {
-  ImportService(this._repo, this._rootDir);
+  ImportService(this._repo, this._text, this._rootDir);
 
   final BookRepository _repo;
+  final TextRepository _text;
 
   /// App documents dir; books and covers live in subfolders of it.
   final Future<Directory> Function() _rootDir;
@@ -41,12 +44,22 @@ class ImportService {
   Future<ImportResult> importEpub(String fileName, Uint8List bytes) async {
     final fallbackTitle = p.basenameWithoutExtension(fileName);
     final EpubMetadata meta;
+    final ParsedBook parsed;
     try {
-      meta = await Isolate.run(
-        () => readEpubMetadata(bytes, fallbackTitle: fallbackTitle),
+      // Parsing is the heavy part: keep it off the UI isolate.
+      (meta, parsed) = await Isolate.run(
+        () async => (
+          await readEpubMetadata(bytes, fallbackTitle: fallbackTitle),
+          await parseEpubText(bytes),
+        ),
       );
-    } on FormatException {
-      return ImportFailure(fileName, 'not a valid EPUB file');
+    } on FormatException catch (e) {
+      return ImportFailure(
+        fileName,
+        e.message.contains('no readable text')
+            ? 'no readable text in this EPUB'
+            : 'not a valid EPUB file',
+      );
     }
 
     final existing = await _repo.findDuplicate(
@@ -64,22 +77,35 @@ class ImportService {
 
     File? coverFile;
     if (meta.coverBytes != null) {
-      coverFile =
-          File(p.join(root.path, 'covers', '$stem.${meta.coverExtension}'));
+      coverFile = File(
+        p.join(root.path, 'covers', '$stem.${meta.coverExtension}'),
+      );
       await coverFile.parent.create(recursive: true);
       await coverFile.writeAsBytes(meta.coverBytes!, flush: true);
     }
 
-    final id = await _repo.addBook(BooksCompanion.insert(
-      title: meta.title,
-      author: Value(meta.author),
-      format: BookFormat.epub,
-      filePath: bookFile.path,
-      coverPath: Value(coverFile?.path),
-      fileSize: bytes.length,
-      wordCount: Value(meta.wordCount),
-    ));
+    final id = await _repo.addBook(
+      BooksCompanion.insert(
+        title: meta.title,
+        author: Value(meta.author),
+        format: BookFormat.epub,
+        filePath: bookFile.path,
+        coverPath: Value(coverFile?.path),
+        fileSize: bytes.length,
+        wordCount: Value(meta.wordCount),
+      ),
+    );
+    await _text.storeParsed(id, parsed);
     return ImportSuccess(fileName, id, meta.title);
+  }
+
+  /// Builds the sentence index for a book imported before the text pipeline
+  /// existed (or whose index was cleared). No-op when already indexed.
+  Future<void> ensureIndexed(Book book) async {
+    if (book.sentenceCount > 0 && book.status == ImportStatus.ready) return;
+    final bytes = await File(book.filePath).readAsBytes();
+    final parsed = await Isolate.run(() => parseEpubText(bytes));
+    await _text.storeParsed(book.id, parsed);
   }
 
   /// Removes the book row and its stored files.

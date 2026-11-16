@@ -25,8 +25,9 @@ class Books extends Table {
   /// Global sentence index of the reading position (single source of truth).
   IntColumn get currentSentence => integer().withDefault(const Constant(0))();
 
-  TextColumn get status => textEnum<ImportStatus>()
-      .withDefault(Constant(ImportStatus.pending.name))();
+  TextColumn get status => textEnum<ImportStatus>().withDefault(
+    Constant(ImportStatus.pending.name),
+  )();
   DateTimeColumn get addedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get lastOpenedAt => dateTime().nullable()();
 }

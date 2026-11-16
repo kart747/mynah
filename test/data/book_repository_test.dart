@@ -12,17 +12,16 @@ BooksCompanion _book(
   int sentences = 0,
   int current = 0,
   DateTime? added,
-}) =>
-    BooksCompanion.insert(
-      title: title,
-      author: Value(author),
-      format: BookFormat.epub,
-      filePath: '/books/$title.epub',
-      fileSize: fileSize,
-      sentenceCount: Value(sentences),
-      currentSentence: Value(current),
-      addedAt: Value(added ?? DateTime(2026, 1, 1)),
-    );
+}) => BooksCompanion.insert(
+  title: title,
+  author: Value(author),
+  format: BookFormat.epub,
+  filePath: '/books/$title.epub',
+  fileSize: fileSize,
+  sentenceCount: Value(sentences),
+  currentSentence: Value(current),
+  addedAt: Value(added ?? DateTime(2026, 1, 1)),
+);
 
 void main() {
   late AppDatabase db;
@@ -60,10 +59,12 @@ void main() {
     await repo.addBook(_book('New'));
     await repo.addBook(_book('Most', sentences: 10, current: 9));
     await repo.addBook(_book('Started', sentences: 10, current: 1));
-    expect(
-      await titles(LibrarySort.progress),
-      ['Most', 'Half', 'Started', 'New'],
-    );
+    expect(await titles(LibrarySort.progress), [
+      'Most',
+      'Half',
+      'Started',
+      'New',
+    ]);
   });
 
   test('deleteBook removes the row', () async {
@@ -89,8 +90,13 @@ void main() {
   });
 
   test('progress and time left', () async {
-    final id = await repo.addBook(_book('P', sentences: 200, current: 50)
-        .copyWith(wordCount: const Value(2300)));
+    final id = await repo.addBook(
+      _book(
+        'P',
+        sentences: 200,
+        current: 50,
+      ).copyWith(wordCount: const Value(2300)),
+    );
     final book = (await repo.getBook(id))!;
     expect(book.progress, 0.25);
     expect(book.minutesLeft(), 8); // 1725 words / 230 wpm = 7.5 -> 8

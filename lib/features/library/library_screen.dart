@@ -59,8 +59,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Could not load library.\n$e')),
         data: (all) {
-          final visible =
-              all.where((b) => !_dismissed.contains(b.id)).toList();
+          final visible = all.where((b) => !_dismissed.contains(b.id)).toList();
           if (visible.isEmpty) {
             return _EmptyLibrary(busy: importing, onAddSamples: _addSamples);
           }
@@ -135,14 +134,16 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 
   Future<void> _import() async {
-    final results =
-        await ref.read(importControllerProvider.notifier).pickAndImport();
+    final results = await ref
+        .read(importControllerProvider.notifier)
+        .pickAndImport();
     _report(results);
   }
 
   Future<void> _addSamples() async {
-    final results =
-        await ref.read(importControllerProvider.notifier).addSampleBooks();
+    final results = await ref
+        .read(importControllerProvider.notifier)
+        .addSampleBooks();
     _report(results);
   }
 
@@ -214,8 +215,11 @@ class _EmptyLibrary extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.auto_stories_outlined,
-                size: 64, color: theme.colorScheme.primary),
+            Icon(
+              Icons.auto_stories_outlined,
+              size: 64,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(height: 16),
             Text('Your library is empty', style: theme.textTheme.titleLarge),
             const SizedBox(height: 8),

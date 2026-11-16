@@ -34,10 +34,12 @@ class BookRepository {
     required int fileSize,
   }) {
     final query = _db.select(_db.books)
-      ..where((b) =>
-          b.title.equals(title) &
-          b.fileSize.equals(fileSize) &
-          (author == null ? b.author.isNull() : b.author.equals(author)))
+      ..where(
+        (b) =>
+            b.title.equals(title) &
+            b.fileSize.equals(fileSize) &
+            (author == null ? b.author.isNull() : b.author.equals(author)),
+      )
       ..limit(1);
     return query.getSingleOrNull();
   }
@@ -55,9 +57,8 @@ class BookRepository {
       case LibrarySort.progress:
         return [
           (b) => OrderingTerm.desc(
-                b.currentSentence.cast<double>() /
-                    b.sentenceCount.cast<double>(),
-              ),
+            b.currentSentence.cast<double>() / b.sentenceCount.cast<double>(),
+          ),
           (b) => OrderingTerm.asc(b.title.collate(Collate.noCase)),
         ];
     }

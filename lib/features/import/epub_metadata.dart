@@ -61,8 +61,9 @@ Future<(Uint8List, String)?> _readCover(EpubBookRef book) async {
 
   // EPUB 3 property, then the EPUB 2 <meta name="cover">, then naming.
   var item = manifest
-      .where((i) =>
-          isImage(i) && (i.Properties?.contains('cover-image') ?? false))
+      .where(
+        (i) => isImage(i) && (i.Properties?.contains('cover-image') ?? false),
+      )
       .firstOrNull;
   if (item == null) {
     final coverId = book.Schema?.Package?.Metadata?.MetaItems
@@ -74,10 +75,12 @@ Future<(Uint8List, String)?> _readCover(EpubBookRef book) async {
     }
   }
   item ??= manifest
-      .where((i) =>
-          isImage(i) &&
-          ((i.Id?.toLowerCase().contains('cover') ?? false) ||
-              (i.Href?.toLowerCase().contains('cover') ?? false)))
+      .where(
+        (i) =>
+            isImage(i) &&
+            ((i.Id?.toLowerCase().contains('cover') ?? false) ||
+                (i.Href?.toLowerCase().contains('cover') ?? false)),
+      )
       .firstOrNull;
 
   final href = item?.Href;

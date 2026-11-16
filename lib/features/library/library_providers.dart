@@ -11,8 +11,9 @@ class LibrarySortNotifier extends Notifier<LibrarySort> {
   void set(LibrarySort sort) => state = sort;
 }
 
-final librarySortProvider =
-    NotifierProvider<LibrarySortNotifier, LibrarySort>(LibrarySortNotifier.new);
+final librarySortProvider = NotifierProvider<LibrarySortNotifier, LibrarySort>(
+  LibrarySortNotifier.new,
+);
 
 final libraryBooksProvider = StreamProvider<List<Book>>((ref) {
   final sort = ref.watch(librarySortProvider);

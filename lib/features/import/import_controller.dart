@@ -15,6 +15,7 @@ const sampleBookAssets = [
 final importServiceProvider = Provider<ImportService>(
   (ref) => ImportService(
     ref.watch(bookRepositoryProvider),
+    ref.watch(textRepositoryProvider),
     getApplicationDocumentsDirectory,
   ),
 );
@@ -47,10 +48,15 @@ class ImportController extends Notifier<int> {
   Future<List<ImportResult>> addSampleBooks() async {
     final results = <ImportResult>[];
     for (final asset in sampleBookAssets) {
-      results.add(await _run(asset.split('/').last, () async {
-        final data = await rootBundle.load(asset);
-        return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      }));
+      results.add(
+        await _run(asset.split('/').last, () async {
+          final data = await rootBundle.load(asset);
+          return data.buffer.asUint8List(
+            data.offsetInBytes,
+            data.lengthInBytes,
+          );
+        }),
+      );
     }
     return results;
   }
@@ -72,5 +78,6 @@ class ImportController extends Notifier<int> {
   }
 }
 
-final importControllerProvider =
-    NotifierProvider<ImportController, int>(ImportController.new);
+final importControllerProvider = NotifierProvider<ImportController, int>(
+  ImportController.new,
+);

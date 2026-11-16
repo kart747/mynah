@@ -55,8 +55,10 @@ class BookCard extends StatelessWidget {
             book.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w600, height: 1.2),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
           ),
           if (book.author != null)
             Text(
@@ -67,8 +69,9 @@ class BookCard extends StatelessWidget {
             ),
           Text(
             meta,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

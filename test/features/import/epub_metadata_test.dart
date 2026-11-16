@@ -6,9 +6,9 @@ import 'package:mynah/features/import/epub_metadata.dart';
 
 void main() {
   Future<EpubMetadata> read(String name) => readEpubMetadata(
-        File('assets/samples/$name').readAsBytesSync(),
-        fallbackTitle: 'fallback',
-      );
+    File('assets/samples/$name').readAsBytesSync(),
+    fallbackTitle: 'fallback',
+  );
 
   test('reads title, author and cover of Alice', () async {
     final meta = await read('alice-in-wonderland.epub');

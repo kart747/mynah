@@ -7,13 +7,13 @@ export 'tables.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Books, Chapters, Paragraphs, Sentences])
+@DriftDatabase(tables: [Books, Chapters, Paragraphs, Sentences, AppSettings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? driftDatabase(name: 'mynah'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -76,3 +76,12 @@ class Sentences extends Table {
   @override
   Set<Column> get primaryKey => {bookId, idx};
 }
+
+/// Small key/value store for user settings (JSON strings).
+class AppSettings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}

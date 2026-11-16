@@ -24,6 +24,12 @@ class BookRepository {
         BooksCompanion(lastOpenedAt: Value(at ?? DateTime.now())),
       );
 
+  /// Saves the reading position (global sentence index).
+  Future<void> savePosition(int id, int sentenceIdx) =>
+      (_db.update(_db.books)..where((b) => b.id.equals(id))).write(
+        BooksCompanion(currentSentence: Value(sentenceIdx)),
+      );
+
   Future<void> deleteBook(int id) =>
       (_db.delete(_db.books)..where((b) => b.id.equals(id))).go();
 
